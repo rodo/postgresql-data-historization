@@ -9,9 +9,12 @@ PREPARE init_histo AS
 PREPARE start_histo AS
   SELECT historize_table_start('public','test_foobar');
 
+PREPARE stop_histo AS
+  SELECT historize_table_stop('public','test_foobar');
 
--- six tests will be run
-SELECT plan(9);
+
+-- Define the number of tests to run
+SELECT plan(11);
 
 
 CREATE TABLE test_foobar (id int) ;
@@ -45,6 +48,7 @@ SELECT partitions_are(
     ARRAY[ 'test_foobar_log_20240102', 'test_foobar_log_20240103' ]
 );
 
+-- Drop a partition
 SELECT historize_drop_partition(
   'test_foobar',
   1 - EXTRACT(DAY FROM now() - '2024-01-02')::int
@@ -75,6 +79,18 @@ SELECT results_eq(
        'EXECUTE count_log',
        ARRAY[1],
        'The data is well historized');
+
+
+-- stop the historization
+SELECT results_eq('stop_histo',  ARRAY[0], 'start is successful and return 0');
+
+INSERT INTO test_foobar (id) VALUES (2);
+SELECT results_eq(
+       'EXECUTE count_log',
+       ARRAY[1],
+       'The data is no more historized');
+
+
 
 SELECT * FROM finish();
 -- Always end unittest with a rollback
