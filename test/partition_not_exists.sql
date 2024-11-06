@@ -18,7 +18,7 @@ PREPARE stop_histo AS
 
 
 -- Define the number of tests to run
-SELECT plan(4);
+SELECT plan(3);
 
 CREATE TABLE test_foobar (id int) ;
 
