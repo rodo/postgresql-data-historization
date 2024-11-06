@@ -82,7 +82,7 @@ SELECT results_eq(
 
 
 -- stop the historization
-SELECT results_eq('stop_histo',  ARRAY[0], 'start is successful and return 0');
+SELECT results_eq('stop_histo',  ARRAY[0], 'stop is successful and return 0');
 
 INSERT INTO test_foobar (id) VALUES (2);
 SELECT results_eq(

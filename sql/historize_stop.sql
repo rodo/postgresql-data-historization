@@ -12,7 +12,7 @@ BEGIN
    EXECUTE format('DROP TRIGGER %s_historization_insert_trg ON %s.%s',
     table_source, schema_dest, table_source);
    --
-   -- Function that manager UPDATE statements
+   -- Function that manage UPDATE statements
    --
    EXECUTE format('DROP FUNCTION %s_historization_update_trg()', table_source);
    --
@@ -20,7 +20,7 @@ BEGIN
    --
    EXECUTE format('DROP FUNCTION %s_historization_insert_trg()', table_source);
 
-   RETURN 1;
+   RETURN 0;
 END;
 $EOF$;
 
