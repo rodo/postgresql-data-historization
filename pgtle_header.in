@@ -1,0 +1,6 @@
+SELECT pgtle.install_extension
+(
+ 'data_historization',
+ '_EXTVERSION_',
+ 'Keep a copy of each tuples in a dedicated table',
+$_pg_tle_$
