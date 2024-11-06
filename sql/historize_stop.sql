@@ -22,7 +22,7 @@ BEGIN
 
    RETURN 1;
 END;
-$EOF$
+$EOF$;
 
 
 
