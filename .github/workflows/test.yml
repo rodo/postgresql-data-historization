@@ -26,7 +26,7 @@ jobs:
 
       # Test all, install, test, test-serial, and test-parallel, both from clean
       # repo and repeated with existing build, with and without PARALLEL_CONN=1.
-      - run: make uninstall clean all
+      - run: make uninstall clean
       - run: make all
       - run: make install
       - run: psql -c 'CREATE EXTENSION data_historization'
