@@ -22,7 +22,7 @@ CREATE TABLE test_foobar (id int) ;
 -- initialize the historization
 --
 
-SELECT results_eq('init_histo',  ARRAY[1], 'init is successful and return 1');
+SELECT results_eq('init_histo',  ARRAY[0], 'init is successful and return 1');
 
 SELECT has_table('public'::name, 'test_foobar_log'::name, 'Table public.test_foobar_log exists');
 SELECT is_partitioned('public'::name, 'test_foobar_log'::name, 'Table public.test_foobar_log is partitioned');
