@@ -18,7 +18,7 @@ PREPARE stop_histo AS
 
 
 -- Define the number of tests to run
-SELECT plan(3);
+SELECT plan(4);
 
 CREATE TABLE test_foobar (id int) ;
 
@@ -27,6 +27,9 @@ CREATE TABLE test_foobar (id int) ;
 
 SELECT results_eq('init_histo',  ARRAY[0], 'init is successful and return 0');
 
+
+-- drop the partition automatically created
+SELECT historize_drop_partition('test_foobar', 0) ;
 
 -- start the historization
 SELECT results_eq('start_histo',  ARRAY[1], 'start is not successful and return 1');
