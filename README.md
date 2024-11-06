@@ -21,6 +21,24 @@ SELECT historize_table_start('public','alpha');
 
 ```sql
 
-SELECT create_tab_part('alpha_log',0);
+SELECT historize_create_partition('alpha_log',0);
 
+```
+
+## Create partition with pg_cron
+
+If you want to automatically create partition with pg_cron you can add
+the following commands
+
+
+```
+SELECT cron.schedule_in_database(
+  'create-part_1', '00 08 * * *',
+  $$SELECT historize_create_partition('my_table', generate_series(1, 4) )$$,
+  'my_database');
+
+SELECT cron.schedule_in_database(
+  'create-part_1', '00 08 * * *',
+  $$SELECT historize_drop_partition('my_table', generate_series(-8, -4) )$$,
+  'my_database');
 ```
