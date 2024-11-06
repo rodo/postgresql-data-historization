@@ -30,4 +30,4 @@ jobs:
       - run: make all
       - run: make install
       - run: psql -c 'CREATE EXTENSION data_historization'
-      - run: pg_prove -r --ext .sql test/integration_test.sql
+      - run: pg_prove -r --ext .sql test/

@@ -12,11 +12,7 @@ DECLARE
     dateStr varchar;
     dateUpStr varchar;
     partition varchar;
-
 BEGIN
-    IF NOT EXISTS (SELECT table_name FROM information_schema.tables WHERE table_schema=schema_dest AND table_name=table_source) THEN
-      RETURN 0;
-    END IF;
 
     EXECUTE format('
         CREATE TABLE IF NOT EXISTS %s
@@ -35,7 +31,7 @@ BEGIN
     EXECUTE format('
        ALTER TABLE %s ADD COLUMN histo_version int default 0', table_source);
 
-    RETURN 1;
+    RETURN 0;
 END;
 $$;
 

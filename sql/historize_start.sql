@@ -9,9 +9,13 @@ CREATE OR REPLACE FUNCTION historize_table_start(schema_dest varchar, table_sour
 RETURNS integer
     LANGUAGE plpgsql AS
 $EOF$
-
+DECLARE
+    check_part boolean;
 BEGIN
-
+    SELECT historize_check_partition(schema_dest, table_source, 0) = 0 INTO check_part;
+    IF NOT check_part THEN
+      RETURN 1;
+    END IF;
    --
    -- Function that manager UPDATE statements
    --
