@@ -2,7 +2,7 @@
 
 FILES = $(wildcard sql/*.sql)
 
-TESTFILES = test/sql/get_random_country.sql
+TESTFILES = $(wildcard test/sql/*.sql)
 
 EXTENSION = data_historization
 

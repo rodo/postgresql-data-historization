@@ -22,14 +22,21 @@ BEGIN
              data jsonb
            ) PARTITION BY RANGE (eventtime)', schema_dest || '.' || table_source || '_log');
 
+    -- Create an index on the id the easily regroup all the tuple for the same initial one
+    --
     EXECUTE format('
         CREATE INDEX %s_log_id_idx ON %s_log(id)', table_source, schema_dest || '.' || table_source);
 
--- Add a new column to keep the version of the row directly in the row
---
+    -- Add a new column on the source table to keep the version directly in the row
+    --
 
     EXECUTE format('
        ALTER TABLE %s ADD COLUMN histo_version int default 0', table_source);
+
+    -- Create 7 first partition
+    --
+    EXECUTE format('
+       SELECT historize_create_partition(''%s'', generate_series(0,6) )', table_source );
 
     RETURN 0;
 END;

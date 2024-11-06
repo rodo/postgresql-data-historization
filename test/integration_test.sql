@@ -45,7 +45,16 @@ SELECT historize_create_partition(
 
 SELECT partitions_are(
     'public', 'test_foobar_log',
-    ARRAY[ 'test_foobar_log_20240102', 'test_foobar_log_20240103' ]
+    ARRAY['test_foobar_log_20240102',
+          'test_foobar_log_20240103',
+          'test_foobar_log_' || TO_CHAR(NOW()::date, 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '1 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '2 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '3 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '4 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '5 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '6 day', 'yyyymmdd')
+          ]
 );
 
 -- Drop a partition
@@ -56,7 +65,15 @@ SELECT historize_drop_partition(
 
 SELECT partitions_are(
     'public', 'test_foobar_log',
-    ARRAY[ 'test_foobar_log_20240102' ]
+    ARRAY['test_foobar_log_20240102',
+          'test_foobar_log_' || TO_CHAR(NOW()::date, 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '1 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '2 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '3 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '4 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '5 day', 'yyyymmdd'),
+          'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '6 day', 'yyyymmdd')
+    ]
 );
 
 -- create a partition to store data of today
