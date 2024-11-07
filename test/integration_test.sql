@@ -14,10 +14,9 @@ PREPARE stop_histo AS
 
 
 -- Define the number of tests to run
-SELECT plan(11);
+SELECT plan(15);
 
-
-CREATE TABLE test_foobar (id int) ;
+CREATE TABLE test_foobar (id int, fname text DEFAULT 'alpha') ;
 
 -- initialize the historization
 --
@@ -79,8 +78,11 @@ SELECT partitions_are(
 -- create a partition to store data of today
 SELECT historize_create_partition('test_foobar', 0);
 
+--
 -- the historization is not alreday started
+--
 INSERT INTO test_foobar (id) VALUES (1);
+UPDATE test_foobar SET fname = 'beta' WHERE id = 1;
 
 PREPARE count_log AS SELECT count(*)::int FROM test_foobar_log;
 SELECT results_eq(
@@ -91,12 +93,41 @@ SELECT results_eq(
 -- start the historization
 SELECT results_eq('start_histo',  ARRAY[0], 'start is successful and return 0');
 
-INSERT INTO test_foobar (id) VALUES (2);
+INSERT INTO test_foobar (id) VALUES (2),(3);
+UPDATE test_foobar SET fname = 'beta' WHERE id = 2;
 SELECT results_eq(
        'EXECUTE count_log',
        ARRAY[1],
        'The data is well historized');
 
+SELECT results_eq(
+    'SELECT histo_version FROM test_foobar WHERE id=3',
+    ARRAY[1],
+    'The histo version is correct for row 3'
+);
+
+SELECT results_eq(
+    'SELECT histo_version FROM test_foobar WHERE id=2',
+    ARRAY[2],
+    'The histo version is correct for row 2'
+);
+--
+-- Test that updating a row increase the version
+--
+UPDATE test_foobar SET fname = 'delta' WHERE id = 3;
+SELECT results_eq(
+    'SELECT histo_version FROM test_foobar WHERE id=3',
+    ARRAY[2],
+    'The histo version is correct'
+);
+--
+-- Test that updating a row without changing values do not change version
+--
+UPDATE test_foobar SET fname = 'echo' WHERE id = 3;
+SELECT results_eq(
+    'SELECT histo_version FROM test_foobar WHERE id=3',
+    ARRAY[3]
+);
 
 -- stop the historization
 SELECT results_eq('stop_histo',  ARRAY[0], 'stop is successful and return 0');
@@ -104,7 +135,7 @@ SELECT results_eq('stop_histo',  ARRAY[0], 'stop is successful and return 0');
 INSERT INTO test_foobar (id) VALUES (2);
 SELECT results_eq(
        'EXECUTE count_log',
-       ARRAY[1],
+       ARRAY[3],
        'The data is no more historized');
 
 

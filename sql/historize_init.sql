@@ -19,6 +19,7 @@ BEGIN
            ( id int,
              eventtime timestamp with time zone,
              txid bigint,
+             sys_period tstzrange,
              data jsonb
            ) PARTITION BY RANGE (eventtime)', schema_dest || '.' || table_source || '_log');
 
@@ -32,6 +33,9 @@ BEGIN
 
     EXECUTE format('
        ALTER TABLE %s ADD COLUMN histo_version int default 0', table_source);
+
+    EXECUTE format('
+       ALTER TABLE %s ADD COLUMN histo_sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, null)', table_source);
 
     -- Create 7 first partition
     --
