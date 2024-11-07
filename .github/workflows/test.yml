@@ -8,8 +8,14 @@ jobs:
     strategy:
       matrix:
         include:
+          - { version: 18 }
           - { version: 17 }
           - { version: 16 }
+          - { version: 15 }
+          - { version: 14 }
+          - { version: 13 }
+          - { version: 12 }
+          - { version: 11 }
     name: PostgreSQL ${{ matrix.version }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
