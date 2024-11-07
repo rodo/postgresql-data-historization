@@ -6,7 +6,7 @@ PREPARE init_histo AS
   SELECT historize_table_init('public','test_foobar');
 
 -- Define the number of tests to run
-SELECT plan(7);
+SELECT plan(8);
 
 CREATE TABLE test_foobar (id int) ;
 
@@ -15,11 +15,13 @@ CREATE TABLE test_foobar (id int) ;
 
 SELECT results_eq('init_histo',  ARRAY[0], 'init is successful and return 0');
 
-
 -- Check we have all wanted objects created
 --
 --
 SELECT has_column('public'::name, 'test_foobar'::name, 'histo_version',
+'Table public.test_foobar has a column named histo_version');
+
+SELECT has_column('public'::name, 'test_foobar'::name, 'histo_sys_period',
 'Table public.test_foobar has a column named histo_version');
 
 
@@ -38,9 +40,7 @@ SELECT partitions_are(
           ]
 );
 
-
-
-SELECT columns_are('public'::name, 'test_foobar_log'::name, ARRAY['id','eventtime','txid','data']);
+SELECT columns_are('public'::name, 'test_foobar_log'::name, ARRAY['id','eventtime','txid','data','sys_period']);
 
 SELECT indexes_are('public'::name, 'test_foobar_log'::name, ARRAY['test_foobar_log_id_idx']);
 

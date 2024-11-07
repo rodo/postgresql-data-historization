@@ -17,37 +17,38 @@ BEGIN
       RETURN 1;
     END IF;
    --
-   -- Function that manager UPDATE statements
+   -- Function to manage UPDATE statements
    --
    EXECUTE format('CREATE OR REPLACE FUNCTION %s_historization_update_trg()
         RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN
       NEW.histo_version = OLD.histo_version + 1;
+      NEW.histo_sys_period = tstzrange(CURRENT_TIMESTAMP,null);
 
-      INSERT INTO %s.%s_log (id, txid, eventtime, data)
-      VALUES (NEW.id, txid_current(), now(), to_jsonb(NEW));
+      INSERT INTO %s.%s_log (id, txid, eventtime, sys_period, data)
+      VALUES (OLD.id, txid_current(), now(),
+              tstzrange(lower(OLD.histo_sys_period), CURRENT_TIMESTAMP), to_jsonb(OLD) - ''histo_sys_period'');
 
     RETURN NEW;
     END;
 $$', table_source, schema_dest, table_source);
 
    --
-   -- Function that manage INSERT statements
+   -- Function to manage INSERT statements
    --
 
    EXECUTE format('CREATE OR REPLACE FUNCTION %s_historization_insert_trg()
         RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     NEW.histo_version = 1;
-
-    INSERT INTO %s.%s_log (id, txid, eventtime, data)
-    VALUES (NEW.id, txid_current(), now(), to_jsonb(NEW));
-
-
+    NEW.histo_sys_period = tstzrange(CURRENT_TIMESTAMP,null);
     RETURN NEW;
     END;
 $$', table_source, schema_dest, table_source);
 
+   --
+   -- Create two triggers, one for UPDATE and one for INSERT
+   --
 
    EXECUTE format('
      CREATE TRIGGER %s_historization_update_trg

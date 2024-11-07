@@ -20,7 +20,7 @@ SCHEMA = @extschema@
 
 include $(PGXS)
 
-all: $(EXTENSION)--$(EXTVERSION).sql
+all: $(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT)
 
 $(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $(FILES) > $@
@@ -31,7 +31,7 @@ clean:
 test:
 	pg_prove $(TESTFILES)
 
-pgtle: build
-	sed -e 's/_EXTVERSION_/$(EXTVERSION)/' pgtle_header.in > $(PGTLEOUT)
-	cat data_historization--$(EXTVERSION).sql >>  $(PGTLEOUT)
-	cat pgtle_footer.in >> $(PGTLEOUT)
+$(PGTLEOUT): $(EXTENSION)--$(EXTVERSION).sql src/pgtle_footer.in src/pgtle_header.in
+	sed -e 's/_EXTVERSION_/$(EXTVERSION)/' src/pgtle_header.in > $(PGTLEOUT)
+	cat $(EXTENSION)--$(EXTVERSION).sql >> $(PGTLEOUT)
+	cat src/pgtle_footer.in >> $(PGTLEOUT)
