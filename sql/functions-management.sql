@@ -1,7 +1,12 @@
 -- Function that will create a partition
 
-CREATE OR REPLACE FUNCTION historize_check_partition(schema_dest varchar, table_source varchar, delta integer default 1) RETURNS integer
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION historize_check_partition(
+  schema_dest varchar,
+  table_source varchar,
+  delta integer default 1)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
     dateStr varchar;
@@ -30,7 +35,9 @@ END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION historize_create_partition(schema_dest varchar, table_source varchar, delta integer default 1) RETURNS integer
+CREATE OR REPLACE FUNCTION historize_create_partition(
+schema_dest varchar,
+table_source varchar, delta integer default 1) RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
@@ -81,8 +88,13 @@ $$;
 -- Drop a partion
 --
 --
-CREATE OR REPLACE FUNCTION historize_drop_partition(table_source varchar, delta integer default 1) RETURNS integer
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION historize_drop_partition(
+  schema_dest varchar,
+  table_source varchar,
+  delta integer default 1)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
     dateStr varchar;
@@ -95,7 +107,7 @@ BEGIN
     SELECT to_char(DATE 'today' + make_interval(days => delta), 'YYYYMMDD') INTO dateStr;
     SELECT to_char(DATE 'tomorrow' + make_interval(days => delta), 'YYYYMMDD') INTO dateUpStr;
 
-    partition := table_log || '_' || dateStr::text;
+    partition := schema_dest || table_log || '_' || dateStr::text;
 
     IF EXISTS (SELECT relname FROM pg_class WHERE relname=partition) THEN
 
