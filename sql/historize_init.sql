@@ -5,12 +5,12 @@
 -- - an index
 -- - a new column on the table source
 
-CREATE OR REPLACE FUNCTION historize_table_init(schema_dest varchar, table_source varchar) RETURNS integer
+CREATE OR REPLACE FUNCTION historize_table_init(
+       schema_dest varchar,
+       table_source varchar) RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
-    dateStr varchar;
-    dateUpStr varchar;
     partition varchar;
 BEGIN
 
@@ -37,10 +37,18 @@ BEGIN
     EXECUTE format('
        ALTER TABLE %s ADD COLUMN histo_sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, null)', table_source);
 
-    -- Create 7 first partition
+    -- Create 7 first partition from today
     --
     EXECUTE format('
-       SELECT historize_create_partition(''%s'', generate_series(0,6) )', table_source );
+       SELECT historize_create_partition(%L, generate_series(0,6) )', table_source );
+
+    -- If the defaut foreign server exist, define the cron entries
+    --
+    IF EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname='historize_foreign_cron') THEN
+
+      EXECUTE format('
+         SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
+    END IF;
 
     RETURN 0;
 END;

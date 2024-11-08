@@ -1,7 +1,12 @@
 -- Function that will create a partition
 
-CREATE OR REPLACE FUNCTION historize_check_partition(schema_dest varchar, table_source varchar, delta integer default 1) RETURNS integer
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION historize_check_partition(
+  schema_dest varchar,
+  table_source varchar,
+  delta integer default 1)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
     dateStr varchar;
@@ -30,7 +35,9 @@ END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION historize_create_partition(schema_dest varchar, table_source varchar, delta integer default 1) RETURNS integer
+CREATE OR REPLACE FUNCTION historize_create_partition(
+schema_dest varchar,
+table_source varchar, delta integer default 1) RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
@@ -81,8 +88,13 @@ $$;
 -- Drop a partion
 --
 --
-CREATE OR REPLACE FUNCTION historize_drop_partition(table_source varchar, delta integer default 1) RETURNS integer
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION historize_drop_partition(
+  schema_dest varchar,
+  table_source varchar,
+  delta integer default 1)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
     dateStr varchar;
@@ -100,12 +112,24 @@ BEGIN
     IF EXISTS (SELECT relname FROM pg_class WHERE relname=partition) THEN
 
       EXECUTE
-          format('DROP TABLE %s', partition);
+          format('DROP TABLE %s.%s', schema_dest, partition);
       RETURN 1;
 
     ELSE
       RETURN 0;
     END IF;
 
+END;
+$$;
+
+
+CREATE OR REPLACE FUNCTION historize_drop_partition(table_source varchar, delta integer default 1) RETURNS integer
+    LANGUAGE plpgsql AS
+$$
+DECLARE
+   result integer;
+BEGIN
+   SELECT historize_drop_partition('public', table_source, delta) INTO result;
+   RETURN result;
 END;
 $$;

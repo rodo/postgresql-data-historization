@@ -1,6 +1,6 @@
 # pg_modnar extension
 comment = 'Random generators for PostgreSQL'
-default_version = '0.0.3'
+default_version = '0.0.4'
 requires = 'plpgsql'
 relocatable = true
 superuser = false

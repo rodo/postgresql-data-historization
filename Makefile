@@ -28,7 +28,7 @@ all: $(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT)
 
 $(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $(FILES) > $@
-	cat $@ > sql/data_historization.sql
+	cat $@ > data_historization.sql
 
 clean:
 	rm -f $(DATA) $(PGTLEOUT) *.zip
