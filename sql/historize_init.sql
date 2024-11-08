@@ -44,8 +44,13 @@ BEGIN
     EXECUTE format('
        SELECT historize_create_partition(%L, generate_series(0,6) )', table_source );
 
-    EXECUTE format('
-       SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
+    -- If the defaut foreign server exist, define the cron entries
+    --
+    IF EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname='historize_foreign_cron') THEN
+
+      EXECUTE format('
+         SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
+    END IF;
 
     RETURN 0;
 END;
