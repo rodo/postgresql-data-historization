@@ -107,12 +107,12 @@ BEGIN
     SELECT to_char(DATE 'today' + make_interval(days => delta), 'YYYYMMDD') INTO dateStr;
     SELECT to_char(DATE 'tomorrow' + make_interval(days => delta), 'YYYYMMDD') INTO dateUpStr;
 
-    partition := schema_dest || table_log || '_' || dateStr::text;
+    partition := table_log || '_' || dateStr::text;
 
     IF EXISTS (SELECT relname FROM pg_class WHERE relname=partition) THEN
 
       EXECUTE
-          format('DROP TABLE %s', partition);
+          format('DROP TABLE %s.%s', schema_dest, partition);
       RETURN 1;
 
     ELSE

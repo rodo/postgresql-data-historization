@@ -11,8 +11,6 @@ CREATE OR REPLACE FUNCTION historize_table_init(
     LANGUAGE plpgsql AS
 $$
 DECLARE
-    dateStr varchar;
-    dateUpStr varchar;
     partition varchar;
 BEGIN
 
