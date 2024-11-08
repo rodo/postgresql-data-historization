@@ -84,8 +84,9 @@ BEGIN
 END;
 $$;
 
-
-drop FUNCTION historize_cron_list ( character varying, text) ;
+-- List all cron entries for the current database
+--
+--
 
 CREATE OR REPLACE FUNCTION historize_cron_list(
   foreign_server varchar DEFAULT 'historize_foreign_cron',
