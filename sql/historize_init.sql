@@ -6,14 +6,15 @@
 -- - a new column on the table source
 
 CREATE OR REPLACE FUNCTION historize_table_init(
-       schema_dest varchar,
-       table_source varchar) RETURNS integer
-    LANGUAGE plpgsql AS
+       schema_dest NAME,
+       table_source NAME)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
     partition varchar;
 BEGIN
-
     EXECUTE format('
         CREATE TABLE IF NOT EXISTS %s
            ( id int,
@@ -42,7 +43,7 @@ BEGIN
     EXECUTE format('
        SELECT historize_create_partition(%L, generate_series(0,6) )', table_source );
 
-    -- If the defaut foreign server exist, define the cron entries
+    -- If a foreign server exists and named as default, define the cron entries
     --
     IF EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname='historize_foreign_cron') THEN
 
@@ -58,14 +59,14 @@ $$;
 -- Implicit schema public
 --
 
-CREATE OR REPLACE FUNCTION historize_table_init(table_source varchar)
+CREATE OR REPLACE FUNCTION historize_table_init(table_source NAME)
     RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
     result int;
 BEGIN
-    SELECT historize_table_init('public', table_source) INTO result;
+    SELECT historize_table_init('public'::name, table_source) INTO result;
     RETURN result;
 END;
 $$;

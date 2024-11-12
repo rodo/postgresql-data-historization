@@ -107,12 +107,12 @@ BEGIN
     SELECT to_char(DATE 'today' + make_interval(days => delta), 'YYYYMMDD') INTO dateStr;
     SELECT to_char(DATE 'tomorrow' + make_interval(days => delta), 'YYYYMMDD') INTO dateUpStr;
 
-    partition := schema_dest || table_log || '_' || dateStr::text;
+    partition := table_log || '_' || dateStr::text;
 
     IF EXISTS (SELECT relname FROM pg_class WHERE relname=partition) THEN
 
       EXECUTE
-          format('DROP TABLE %s', partition);
+          format('DROP TABLE %s.%s', schema_dest, partition);
       RETURN 1;
 
     ELSE
@@ -137,17 +137,18 @@ $$;
 --
 -- schema_dest :
 -- table_source :
--- nb_partition : the number of partition to create in advance
+-- days_in_advance : the number of partition to create in advance
 -- foreign_server : the name of the ofreign server defined with CREATE SERVER statement
 -- cron_foreign_schema : the name of the scheme where the pg_cron extesion is installed
 
 CREATE OR REPLACE FUNCTION historize_cron_define(
-  schema_dest    varchar,
-  table_source   varchar,
-  nb_partition   integer DEFAULT 4,
-  schedule       text DEFAULT '00 08 * * *',
-  foreign_server varchar DEFAULT 'historize_foreign_cron',
-  cron_foreign_schema varchar DEFAULT 'cron')
+  schema_dest         NAME,
+  table_source        NAME,
+  days_in_advance     integer DEFAULT 4,
+  days_to_keep        integer DEFAULT 7,
+  schedule            text DEFAULT '00 08 * * *',
+  foreign_server      varchar DEFAULT 'historize_foreign_cron'
+)
 RETURNS
   integer
 LANGUAGE plpgsql AS
@@ -155,26 +156,28 @@ $$
 DECLARE
     qry_c text;
     qry_d text;
+    drop_start_from integer;
 BEGIN
 
-    qry_c := format('SELECT %s.schedule_in_database(%L, %L,
+    qry_c := format('SELECT schedule_in_database(%L, %L,
   $eof$SELECT historize_create_partition(%L, %L, generate_series(1, %s) )$eof$,  %L) ',
-    cron_foreign_schema,
     'histo_create_part_' || schema_dest || '_' || table_source,
     schedule,
     schema_dest,
     table_source,
-    nb_partition,
+    days_in_advance,
     current_database());
 
-    qry_d := format('SELECT %s.schedule_in_database(%L, %L,
-  $eof$SELECT historize_drop_partition(%L, %L, generate_series(-14, -%s) )$eof$,  %L) ',
-    cron_foreign_schema,
+    drop_start_from := 0 - (2 * days_to_keep);
+
+    qry_d := format('SELECT schedule_in_database(%L, %L,
+  $eof$SELECT historize_drop_partition(%L, %L, generate_series(%s, -%s) )$eof$,  %L) ',
     'histo_drop_part_' || schema_dest || '_' || table_source,
     schedule,
     schema_dest,
     table_source,
-    nb_partition,
+    drop_start_from,
+    days_to_keep,
     current_database())   ;
 
     EXECUTE format('
@@ -188,10 +191,10 @@ END;
 $$;
 
 CREATE OR REPLACE FUNCTION historize_cron_remove(
-  schema_dest    varchar,
-  table_source   varchar,
-  foreign_server varchar DEFAULT 'historize_foreign_cron',
-  cron_foreign_schema varchar DEFAULT 'cron')
+  schema_dest    NAME,
+  table_source   NAME,
+  foreign_server varchar DEFAULT 'historize_foreign_cron'
+)
 RETURNS
   integer
 LANGUAGE plpgsql AS
@@ -201,12 +204,10 @@ DECLARE
     qry_d text;
 BEGIN
 
-    qry_c := format('SELECT %s.unschedule(%L)',
-    cron_foreign_schema,
+    qry_c := format('SELECT unschedule(%L)',
     'histo_create_part_' || schema_dest || '_' || table_source);
 
-    qry_d := format('SELECT %s.unschedule(%L)',
-    cron_foreign_schema,
+    qry_d := format('SELECT unschedule(%L)',
     'histo_drop_part_' || schema_dest || '_' || table_source);
 
     EXECUTE format('
@@ -224,8 +225,8 @@ $$;
 --
 
 CREATE OR REPLACE FUNCTION historize_cron_list(
-  foreign_server varchar DEFAULT 'historize_foreign_cron',
-  cron_foreign_schema text DEFAULT 'cron')
+  foreign_server varchar DEFAULT 'historize_foreign_cron'
+)
 RETURNS
   TABLE (jobid bigint, schedule text, command text, nodename text,
          nodeport integer, username text, active boolean, jobname text)
@@ -235,7 +236,7 @@ DECLARE
     qry text;
 BEGIN
 
-    qry := format('SELECT jobid, schedule, command, nodename, nodeport, database, username, active,jobname FROM %s.job', cron_foreign_schema);
+    qry := format('SELECT jobid, schedule, command, nodename, nodeport, database, username, active,jobname FROM job' );
 
     RETURN QUERY
     SELECT t1.jobid, t1.schedule, t1.command, t1.nodename, t1.nodeport, t1.username, t1.active, t1.jobname
@@ -258,16 +259,15 @@ $$;
 -- - a new column on the table source
 
 CREATE OR REPLACE FUNCTION historize_table_init(
-       schema_dest varchar,
-       table_source varchar) RETURNS integer
-    LANGUAGE plpgsql AS
+       schema_dest NAME,
+       table_source NAME)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
-    dateStr varchar;
-    dateUpStr varchar;
     partition varchar;
 BEGIN
-
     EXECUTE format('
         CREATE TABLE IF NOT EXISTS %s
            ( id int,
@@ -296,8 +296,13 @@ BEGIN
     EXECUTE format('
        SELECT historize_create_partition(%L, generate_series(0,6) )', table_source );
 
-    EXECUTE format('
-       SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
+    -- If a foreign server exists and named as default, define the cron entries
+    --
+    IF EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname='historize_foreign_cron') THEN
+
+      EXECUTE format('
+         SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
+    END IF;
 
     RETURN 0;
 END;
@@ -307,14 +312,14 @@ $$;
 -- Implicit schema public
 --
 
-CREATE OR REPLACE FUNCTION historize_table_init(table_source varchar)
+CREATE OR REPLACE FUNCTION historize_table_init(table_source NAME)
     RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
     result int;
 BEGIN
-    SELECT historize_table_init('public', table_source) INTO result;
+    SELECT historize_table_init('public'::name, table_source) INTO result;
     RETURN result;
 END;
 $$;

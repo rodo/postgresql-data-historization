@@ -69,7 +69,10 @@ SELECT cron.schedule_in_database(
 
 ## Create foreign server
 
-In case of the extension pg_cron is installed in another database you can automaticcaly create the entries through foreign data wrapper,
+In case of the extension pg_cron is installed in another database you
+can automaticcaly create the entries through foreign data wrapper.
+
+Be aware of adding the right `search_path` option if the pg_cron extension is not set in public schema. By default pg_cron is installed in the schema named `cron`
 
 ```sql
 CREATE EXTENSION dblink;
@@ -77,7 +80,7 @@ CREATE EXTENSION postgres_fdw;
 
 CREATE SERVER historize_foreign_cron
         FOREIGN DATA WRAPPER dblink_fdw
-        OPTIONS (host 'localhost', port '5432', dbname 'postgres');
+        OPTIONS (host 'localhost', port '5432', dbname 'postgres', options '-csearch_path=cron');
 
 CREATE USER MAPPING FOR local_user
         SERVER historize_foreign_cron
