@@ -365,7 +365,6 @@ BEGIN
     -- If a foreign server exists and named as default, define the cron entries
     --
     IF EXISTS (SELECT 1 FROM pg_foreign_server WHERE srvname='historize_foreign_cron') THEN
-
       EXECUTE format('
          SELECT historize_cron_remove(%L, %L)', schema_source, table_source );
     END IF;
