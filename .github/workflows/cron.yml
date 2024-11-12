@@ -15,7 +15,6 @@ jobs:
     env:
       PGUSER: postgres
     steps:
-      - run: pg-start ${{ matrix.version }}
       - uses: actions/checkout@v4
 
       - run: sudo apt-get install -y --no-install-recommends postgresql-${{ matrix.version }}-pgtap
