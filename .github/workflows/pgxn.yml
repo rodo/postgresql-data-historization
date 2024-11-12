@@ -1,8 +1,8 @@
-name: Test
+name: pgxn
 on:
   push:
-    branches: ['*']
-  pull_request:
+    branches:
+      - main
 jobs:
   build:
     strategy:
@@ -10,11 +10,6 @@ jobs:
         include:
           - { version: 17 }
           - { version: 16 }
-          - { version: 15 }
-          - { version: 14 }
-          - { version: 13 }
-          - { version: 12 }
-          - { version: 11 }
     name: PostgreSQL ${{ matrix.version }}
     runs-on: ubuntu-latest
     container: pgxn/pgxn-tools
@@ -31,8 +26,6 @@ jobs:
 
       # Test all, install, test, test-serial, and test-parallel, both from clean
       # repo and repeated with existing build, with and without PARALLEL_CONN=1.
-      - run: make uninstall clean
-      - run: make all
-      - run: make install
+      - run: pgxn install data_historization
       - run: psql -c 'CREATE EXTENSION data_historization'
       - run: pg_prove -v -r --ext .sql test/

@@ -53,11 +53,12 @@ SELECT partitions_are(
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '4 day', 'yyyymmdd'),
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '5 day', 'yyyymmdd'),
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '6 day', 'yyyymmdd')
-          ]
+          ],
+    'All required partitions exists'
 );
 
 -- Drop a partition
-SELECT historize_drop_partition(
+SELECT historize_drop_partition('public',
   'test_foobar',
   1 - EXTRACT(DAY FROM now() - '2024-01-02')::int
 ) ;
@@ -72,7 +73,8 @@ SELECT partitions_are(
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '4 day', 'yyyymmdd'),
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '5 day', 'yyyymmdd'),
           'test_foobar_log_' || TO_CHAR(NOW()::date + INTERVAL '6 day', 'yyyymmdd')
-    ]
+    ],
+    'Number of partitions are correct after dropping one'
 );
 
 -- create a partition to store data of today
