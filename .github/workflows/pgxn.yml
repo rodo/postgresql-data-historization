@@ -1,5 +1,8 @@
 name: pgxn
-
+on:
+  push:
+    branches:
+      - main
 jobs:
   build:
     strategy:
