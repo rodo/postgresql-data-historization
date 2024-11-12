@@ -1,0 +1,28 @@
+name: pgxn
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - { version: 17 }
+          - { version: 16 }
+    name: PostgreSQL ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    container: pgxn/pgxn-tools
+    env:
+      PGUSER: postgres
+    steps:
+      - run: pg-start ${{ matrix.version }}
+      - uses: actions/checkout@v4
+
+      - run: sudo apt-get install -y --no-install-recommends postgresql-${{ matrix.version }}-pgtap
+      - run: psql -c 'CREATE EXTENSION pgtap'
+      # Basic regression test.
+      - run: pg-build-test
+
+      # Test all, install, test, test-serial, and test-parallel, both from clean
+      # repo and repeated with existing build, with and without PARALLEL_CONN=1.
+      - run: pgxn install data_historization
+      - run: psql -c 'CREATE EXTENSION data_historization'
+      - run: pg_prove -v -r --ext .sql test/
