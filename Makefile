@@ -24,7 +24,7 @@ SCHEMA = @extschema@
 
 include $(PGXS)
 
-all: $(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT)
+all: $(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT) data_historization.control
 
 $(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $(FILES) > $@
@@ -43,3 +43,6 @@ $(PGTLEOUT): $(EXTENSION)--$(EXTVERSION).sql src/pgtle_footer.in src/pgtle_heade
 
 dist:
 	git archive --format zip --prefix=$(EXTENSION)-$(DISTVERSION)/ -o $(EXTENSION)-$(DISTVERSION).zip HEAD
+
+data_historization.control: data_historization.control.in META.json
+	sed 's,EXTVERSION,$(EXTVERSION),g; ' $< > $@;
