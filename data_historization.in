@@ -1,0 +1,6 @@
+# data_historization extension
+comment = 'Data historization for PostgreSQL'
+default_version = 'EXTVERSION'
+requires = 'plpgsql'
+relocatable = false
+superuser = false
