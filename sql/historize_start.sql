@@ -6,7 +6,7 @@
 -- - a new column on the table source
 
 CREATE OR REPLACE FUNCTION historize_table_start(schema_dest varchar, table_source varchar)
-RETURNS integer
+RETURNS void
     LANGUAGE plpgsql AS
 $EOF$
 DECLARE
@@ -14,7 +14,7 @@ DECLARE
 BEGIN
     SELECT historize_check_partition(schema_dest, table_source, 0) = 0 INTO check_part;
     IF NOT check_part THEN
-      RETURN 1;
+      RAISE EXCEPTION 'no available partition in log table' USING HINT = 'check if you init the historization with historize_table_init function';
     END IF;
    --
    -- Function to manage UPDATE statements
@@ -65,7 +65,6 @@ $$', table_source, schema_dest, table_source);
        EXECUTE PROCEDURE %s_historization_insert_trg()',
     table_source, schema_dest, table_source, table_source);
 
-    RETURN 0;
 END;
 $EOF$;
 
@@ -74,13 +73,10 @@ $EOF$;
 --
 
 CREATE OR REPLACE FUNCTION historize_table_start(table_source varchar)
-    RETURNS integer
+    RETURNS void
     LANGUAGE plpgsql AS
 $$
-DECLARE
-    result int;
 BEGIN
-    SELECT historize_table_start('public', table_source) INTO result;
-    RETURN result;
+    SELECT historize_table_start('public', table_source);
 END;
 $$;

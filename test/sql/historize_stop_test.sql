@@ -20,9 +20,9 @@ CREATE TABLE test_foobar (id int) ;
 -- start the historization
 -- stop the historization
 
-SELECT results_eq('init_histo', ARRAY[0], 'init is successful and return 0');
-SELECT results_eq('start_histo', ARRAY[0], 'start is successful and return 0');
-SELECT results_eq('stop_histo', ARRAY[0], 'stop is successful and return 0');
+SELECT lives_ok('init_histo');
+SELECT lives_ok('start_histo');
+SELECT lives_ok('stop_histo');
 
 -- Check we have all wanted objects created
 --

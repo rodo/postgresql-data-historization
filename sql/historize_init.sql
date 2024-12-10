@@ -3,18 +3,27 @@
 -- It creates multiple objects
 -- - a table with the name of the table to historize adding a suffix _log
 -- - an index
--- - a new column on the table source
+-- - a column histo_version on the table source
+-- - a column histo_sys_period on the table source
 
 CREATE OR REPLACE FUNCTION historize_table_init(
        schema_dest NAME,
        table_source NAME)
 RETURNS
-  integer
+  void
 LANGUAGE plpgsql AS
 $$
 DECLARE
     partition varchar;
+
 BEGIN
+    -- check if the table source exists
+    IF NOT EXISTS (SELECT true FROM information_schema.tables WHERE table_schema = schema_dest AND table_name = table_source) THEN
+      RAISE EXCEPTION 'table %.% does not exists', schema_dest, table_source USING ERRCODE = '42P01';
+    END IF;
+
+    -- check if the columns does not already exists
+
     EXECUTE format('
         CREATE TABLE IF NOT EXISTS %s
            ( id int,
@@ -50,23 +59,17 @@ BEGIN
       EXECUTE format('
          SELECT historize_cron_define(%L, %L)', schema_dest, table_source );
     END IF;
-
-    RETURN 0;
 END;
 $$;
 
 --
 -- Implicit schema public
 --
-
 CREATE OR REPLACE FUNCTION historize_table_init(table_source NAME)
-    RETURNS integer
+    RETURNS void
     LANGUAGE plpgsql AS
 $$
-DECLARE
-    result int;
 BEGIN
-    SELECT historize_table_init('public'::name, table_source) INTO result;
-    RETURN result;
+    SELECT historize_table_init('public'::name, table_source);
 END;
 $$;
