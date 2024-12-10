@@ -7,8 +7,8 @@ $_pg_tle_$
 -- Function that will create a partition
 
 CREATE OR REPLACE FUNCTION historize_check_partition(
-  schema_dest varchar,
-  table_source varchar,
+  schema_dest name,
+  table_source name,
   delta integer default 1)
 RETURNS
   integer
@@ -42,8 +42,8 @@ $$;
 
 
 CREATE OR REPLACE FUNCTION historize_create_partition(
-schema_dest varchar,
-table_source varchar, delta integer default 1) RETURNS integer
+schema_dest name,
+table_source name, delta integer default 1) RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
@@ -78,7 +78,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION historize_create_partition(table_source varchar, delta integer default 1) RETURNS integer
+CREATE OR REPLACE FUNCTION historize_create_partition(table_source name, delta integer default 1) RETURNS integer
     LANGUAGE plpgsql AS
 $$
 DECLARE
@@ -95,8 +95,8 @@ $$;
 --
 --
 CREATE OR REPLACE FUNCTION historize_drop_partition(
-  schema_dest varchar,
-  table_source varchar,
+  schema_dest name,
+  table_source name,
   delta integer default 1)
 RETURNS
   integer
@@ -128,9 +128,10 @@ BEGIN
 END;
 $$;
 
-
-CREATE OR REPLACE FUNCTION historize_drop_partition(table_source varchar, delta integer default 1) RETURNS integer
-    LANGUAGE plpgsql AS
+CREATE OR REPLACE FUNCTION historize_drop_partition(table_source name, delta integer default 1)
+RETURNS
+  integer
+LANGUAGE plpgsql AS
 $$
 DECLARE
    result integer;
