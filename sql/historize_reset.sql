@@ -1,9 +1,10 @@
 -- This function is used to initialize the data historization
 --
--- It creates multiple objects
--- - a table with the name of the table to historize adding a suffix _log
--- - an index
--- - a new column on the table source
+-- Reset the related objects likned to the historization
+--
+-- - stop the historization
+-- - drop columns created on source table
+-- - remove the cron commands
 
 CREATE OR REPLACE FUNCTION historize_table_reset(
        schema_source NAME,
@@ -46,6 +47,6 @@ CREATE OR REPLACE FUNCTION historize_table_reset(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_reset('public'::name, table_source);
+    PERFORM historize_table_reset('public'::name, table_source);
 END;
 $$;

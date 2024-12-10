@@ -31,7 +31,7 @@ $(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $@ > data_historization.sql
 
 clean:
-	rm -f $(DATA) $(PGTLEOUT) *.zip
+	rm -f *.zip data_historization.control
 
 test:
 	pg_prove $(TESTFILES)
