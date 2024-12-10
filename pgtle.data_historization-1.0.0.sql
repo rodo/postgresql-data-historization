@@ -140,6 +140,58 @@ BEGIN
    RETURN result;
 END;
 $$;
+-- This function is used to initialize the data historization
+--
+CREATE OR REPLACE FUNCTION historize_get_logname(
+       schema_source NAME,
+       table_source NAME)
+RETURNS
+  text
+LANGUAGE plpgsql AS
+$$
+
+BEGIN
+    RETURN schema_source || '.' || table_source || '_log';
+END;
+$$;
+-- This function is used to initialize the data historization
+--
+-- Drop the partitionned tables
+
+CREATE OR REPLACE FUNCTION historize_table_clean(
+       schema_source NAME,
+       table_source NAME)
+RETURNS
+  void
+LANGUAGE plpgsql AS
+$$
+DECLARE
+    partition varchar;
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema=schema_source AND table_name=table_source) THEN
+      RAISE EXCEPTION 'table %.% does not exists', schema_source, table_source USING HINT = 'Check the table name and schema, fix the search_path is case of needed', ERRCODE = '42P01';
+    END IF;
+
+    -- Reset the historization to ensure we can drop the table at no risk
+    EXECUTE format('
+       SELECT historize_table_reset(%L, %L)', schema_source, table_source );
+
+    EXECUTE format('DROP TABLE %',  historize_get_logname(schema_dest, table_source));
+
+END;
+$$;
+
+--
+-- Implicit schema public
+--
+CREATE OR REPLACE FUNCTION historize_table_clean(table_source NAME)
+    RETURNS void
+    LANGUAGE plpgsql AS
+$$
+BEGIN
+    PERFORM historize_table_reset('public'::name, table_source);
+END;
+$$;
 -- This function is used to define conr entries in another database
 --
 -- schema_dest :
@@ -336,10 +388,11 @@ END;
 $$;
 -- This function is used to initialize the data historization
 --
--- It creates multiple objects
--- - a table with the name of the table to historize adding a suffix _log
--- - an index
--- - a new column on the table source
+-- Reset the related objects likned to the historization
+--
+-- - stop the historization
+-- - drop columns created on source table
+-- - remove the cron commands
 
 CREATE OR REPLACE FUNCTION historize_table_reset(
        schema_source NAME,
@@ -382,7 +435,7 @@ CREATE OR REPLACE FUNCTION historize_table_reset(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_reset('public'::name, table_source);
+    PERFORM historize_table_reset('public'::name, table_source);
 END;
 $$;
 -- This function is used to initialize the data historization
@@ -464,7 +517,7 @@ CREATE OR REPLACE FUNCTION historize_table_start(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_start('public', table_source);
+    PERFORM historize_table_start('public'::name, table_source);
 END;
 $$;
 -- This function is used to stop the historization
@@ -507,7 +560,7 @@ CREATE OR REPLACE FUNCTION historize_table_stop(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_stop('public', table_source);
+    PERFORM historize_table_stop('public'::name, table_source);
 END;
 $$;
 $_pg_tle_$

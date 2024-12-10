@@ -14,7 +14,7 @@ PREPARE stop_histo AS
 
 
 -- Define the number of tests to run
-SELECT plan(15);
+SELECT plan(16);
 
 CREATE TABLE test_foobar (id int, fname text DEFAULT 'alpha') ;
 
@@ -140,7 +140,12 @@ SELECT results_eq(
        ARRAY[3],
        'The data is no more historized');
 
+--
+-- Now clean everything
+--
+SELECT historize_table_clean('test_foobar');
 
+SELECT hasnt_table('public'::name, 'test_foobar_log'::name, 'Table public.test_foobar_log exists');
 
 SELECT * FROM finish();
 -- Always end unittest with a rollback
