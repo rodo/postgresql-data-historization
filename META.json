@@ -16,9 +16,9 @@
                "PostgreSQL": "12.0.0"
            },
            "recommends": {
-               "pg_cron": "1.6",
-               "dblink": "1.2",
-               "postgresq_fdw": "1.1"
+               "pg_cron": "1.6.0",
+               "dblink": "1.2.0",
+               "postgresq_fdw": "1.1.0"
            }
       }
    },
