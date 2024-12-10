@@ -21,7 +21,7 @@ CREATE TABLE test_foobar (id int, fname text DEFAULT 'alpha') ;
 -- initialize the historization
 --
 
-SELECT results_eq('init_histo',  ARRAY[0], 'init is successful and return 1');
+SELECT lives_ok('init_histo', 'init is successful');
 
 SELECT has_table('public'::name, 'test_foobar_log'::name, 'Table public.test_foobar_log exists');
 SELECT is_partitioned('public'::name, 'test_foobar_log'::name, 'Table public.test_foobar_log is partitioned');
@@ -34,7 +34,7 @@ SELECT historize_create_partition(
   1 - EXTRACT(DAY FROM now() - '2024-01-01')::int
 ) ;
 
-SELECT results_eq('call_func', ARRAY[0], 'The new partition is well created');
+SELECT lives_ok('call_func');
 
 --
 SELECT historize_create_partition(
@@ -93,7 +93,7 @@ SELECT results_eq(
        'The data is not historized');
 
 -- start the historization
-SELECT results_eq('start_histo',  ARRAY[0], 'start is successful and return 0');
+SELECT lives_ok('start_histo');
 
 INSERT INTO test_foobar (id) VALUES (2),(3);
 UPDATE test_foobar SET fname = 'beta' WHERE id = 2;
@@ -132,7 +132,7 @@ SELECT results_eq(
 );
 
 -- stop the historization
-SELECT results_eq('stop_histo',  ARRAY[0], 'stop is successful and return 0');
+SELECT lives_ok('stop_histo');
 
 INSERT INTO test_foobar (id) VALUES (2);
 SELECT results_eq(

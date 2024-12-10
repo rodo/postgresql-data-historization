@@ -25,22 +25,20 @@ CREATE TABLE test_foobar (id int) ;
 -- initialize the historization
 --
 
-SELECT results_eq('init_histo',  ARRAY[0], 'init is successful and return 0');
+SELECT lives_ok('init_histo', 'call of historize_table_init do not throw an error');
 
 
 -- drop the partition automatically created
 SELECT historize_drop_partition('test_foobar', 0) ;
 
 -- start the historization
-SELECT results_eq('start_histo',  ARRAY[1], 'start is not successful and return 1');
+SELECT throws_ok('start_histo', 'P0001', 'no available partition in log table');
 
 -- create the partition
 SELECT historize_create_partition('public', 'test_foobar', 0) ;
 
 -- start the historization
-SELECT results_eq('start_histo',  ARRAY[0], 'start is successful and return 0');
-
-
+SELECT lives_ok('start_histo', 'call of start_histo do not throw an error');
 
 SELECT * FROM finish();
 -- Always end unittest with a rollback
