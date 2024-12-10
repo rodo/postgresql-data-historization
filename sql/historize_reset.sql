@@ -46,6 +46,6 @@ CREATE OR REPLACE FUNCTION historize_table_reset(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_reset('public'::name, table_source);
+    PERFORM historize_table_reset('public'::name, table_source);
 END;
 $$;

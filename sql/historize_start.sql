@@ -77,6 +77,6 @@ CREATE OR REPLACE FUNCTION historize_table_start(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_start('public', table_source);
+    PERFORM historize_table_start('public'::name, table_source);
 END;
 $$;

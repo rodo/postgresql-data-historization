@@ -38,6 +38,6 @@ CREATE OR REPLACE FUNCTION historize_table_stop(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    SELECT historize_table_stop('public', table_source);
+    PERFORM historize_table_stop('public'::name, table_source);
 END;
 $$;

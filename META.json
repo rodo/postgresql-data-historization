@@ -2,7 +2,7 @@
    "name": "data_historization",
    "abstract": "Data historization for PostgreSQL",
    "description": "Data historization at a table level build on triggers.",
-   "version": "0.0.5",
+   "version": "1.0.0",
    "maintainer": [
       "Rodolphe Quiédeville <rodolphe@quiedeville.org>"
    ],
@@ -26,7 +26,7 @@
      "data_historization": {
        "abstract": "Data historization for PostgreSQL",
        "file": "data_historization.sql",
-       "version": "0.0.5"
+       "version": "1.0.0"
      }
    },
    "resources": {
