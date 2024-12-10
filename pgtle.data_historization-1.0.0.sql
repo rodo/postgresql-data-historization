@@ -168,15 +168,19 @@ $$
 DECLARE
     partition varchar;
 BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema=schema_source AND table_name=table_source) THEN
-      RAISE EXCEPTION 'table %.% does not exists', schema_source, table_source USING HINT = 'Check the table name and schema, fix the search_path is case of needed', ERRCODE = '42P01';
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables
+                   WHERE table_schema=schema_source
+                   AND table_name=table_source)
+    THEN
+      RAISE EXCEPTION 'table %.% does not exists', schema_source, table_source
+        USING HINT = 'Check the table name and schema, fix the search_path is case of needed',
+        ERRCODE = '42P01';
     END IF;
 
-    -- Reset the historization to ensure we can drop the table at no risk
-    EXECUTE format('
-       SELECT historize_table_reset(%L, %L)', schema_source, table_source );
+    -- Stop the historization to ensure to not block users doing an error
+    PERFORM historize_table_stop(schema_source, table_source);
 
-    EXECUTE format('DROP TABLE %',  historize_get_logname(schema_dest, table_source));
+    EXECUTE format('DROP TABLE %s ',  historize_get_logname(schema_source, table_source ));
 
 END;
 $$;
@@ -189,7 +193,7 @@ CREATE OR REPLACE FUNCTION historize_table_clean(table_source NAME)
     LANGUAGE plpgsql AS
 $$
 BEGIN
-    PERFORM historize_table_reset('public'::name, table_source);
+    PERFORM historize_table_clean('public'::name, table_source);
 END;
 $$;
 -- This function is used to define conr entries in another database
