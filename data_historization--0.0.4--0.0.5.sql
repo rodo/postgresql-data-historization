@@ -1,11 +1,11 @@
-DROP FUNCTION historize_table_stop(name, name);
-DROP FUNCTION historize_table_stop(name);
+DROP FUNCTION historize_table_stop(varchar, varchar);
+DROP FUNCTION historize_table_stop(varchar);
 
 DROP FUNCTION historize_table_init(name, name);
 DROP FUNCTION historize_table_init(name);
 
-DROP FUNCTION historize_table_start(name, name);
-DROP FUNCTION historize_table_start(name);
+DROP FUNCTION historize_table_start(varchar, varchar);
+DROP FUNCTION historize_table_start(varchar);
 
 DROP FUNCTION historize_table_reset(name, name);
 DROP FUNCTION historize_table_reset(name);

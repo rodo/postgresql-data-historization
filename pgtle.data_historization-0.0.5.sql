@@ -391,7 +391,7 @@ $$;
 -- - an index
 -- - a new column on the table source
 
-CREATE OR REPLACE FUNCTION historize_table_start(schema_dest varchar, table_source varchar)
+CREATE OR REPLACE FUNCTION historize_table_start(schema_dest NAME, table_source NAME)
 RETURNS void
     LANGUAGE plpgsql AS
 $EOF$
@@ -458,7 +458,7 @@ $EOF$;
 -- Implicit schema public
 --
 
-CREATE OR REPLACE FUNCTION historize_table_start(table_source varchar)
+CREATE OR REPLACE FUNCTION historize_table_start(table_source NAME)
     RETURNS void
     LANGUAGE plpgsql AS
 $$
@@ -470,8 +470,8 @@ $$;
 --
 
 CREATE OR REPLACE FUNCTION historize_table_stop(
-    schema_dest varchar,
-    table_source varchar)
+    schema_dest NAME,
+    table_source NAME)
 RETURNS
     void
 LANGUAGE plpgsql AS
@@ -501,7 +501,7 @@ $EOF$;
 
 
 
-CREATE OR REPLACE FUNCTION historize_table_stop(table_source varchar)
+CREATE OR REPLACE FUNCTION historize_table_stop(table_source NAME)
     RETURNS void
     LANGUAGE plpgsql AS
 $$
