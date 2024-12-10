@@ -1,3 +1,5 @@
 2024-12-10  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
 
+	* 1.0.0 New function historize_table_clean to remve all logs table
+
 	* 0.0.5 Function used as command do not return values
