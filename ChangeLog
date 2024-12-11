@@ -1,3 +1,7 @@
+2024-12-11  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
+
+	* 1.0.1 Fix bug on function historize_cron_list
+
 2024-12-10  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
 
 	* 1.0.0 New function historize_table_clean to remve all logs table

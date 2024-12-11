@@ -86,3 +86,20 @@ CREATE USER MAPPING FOR local_user
         SERVER historize_foreign_cron
         OPTIONS (user 'foreign_user', password 'password');
 ```
+
+## Update the extension on AWS RDS with pg_tle
+
+In this example we will upgrade the extension from version 1.0.0 to 1.0.1
+
+Run the upgrade script in your instance and do an ALTER EXTENSION
+
+```sql
+user@database=> \i pgtle.data_historization-1.0.0--1.0.1.sql
+ install_update_path
+---------------------
+ t
+(1 row)
+
+user@database=> ALTER EXTENSION data_historization UPDATE TO "1.0.1";
+ALTER EXTENSION
+```
