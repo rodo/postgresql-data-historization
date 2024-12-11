@@ -1,6 +1,5 @@
 DEALLOCATE PREPARE ALL;
 
-
 BEGIN;
 
 PREPARE init_histo AS
@@ -15,7 +14,6 @@ PREPARE stop_histo AS
 PREPARE reset_histo AS
   SELECT historize_table_reset('public','no_table');
 
-
 PREPARE init_histo1 AS
   SELECT historize_table_init('does_not_exists');
 
@@ -28,9 +26,11 @@ PREPARE stop_histo1 AS
 PREPARE reset_histo1 AS
   SELECT historize_table_reset('no_table');
 
+PREPARE check_fs AS
+  SELECT historize_check_foreign_server('no_server');
 
 -- Define the number of tests to run
-SELECT plan(8);
+SELECT plan(9);
 
 CREATE TABLE test_foobar (id int, fname text DEFAULT 'alpha') ;
 
@@ -52,6 +52,8 @@ SELECT throws_ok('stop_histo1', '42P01', 'table public.no_table does not exists'
 SELECT throws_ok('start_histo1', 'P0001', 'no available partition in log table');
 
 SELECT throws_ok('reset_histo1', '42P01', 'table public.no_table does not exists');
+
+SELECT throws_ok('check_fs', '42704', 'foreign server "no_server" does not exists');
 
 
 SELECT * FROM finish();
