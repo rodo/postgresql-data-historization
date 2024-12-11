@@ -1,12 +1,4 @@
--- This function is used to define conr entries in another database
 --
--- schema_dest :
--- table_source :
--- days_in_advance : the number of partition to create in advance
--- days_to_keep :
--- foreign_server : the name of the ofreign server defined with CREATE SERVER statement
---
--- No need to specify the schema, it's define in foreign server search_path option
 --
 CREATE OR REPLACE FUNCTION historize_cron_define(
   schema_dest         NAME,
@@ -126,9 +118,8 @@ BEGIN
 
 END;
 $$;
---
---
---
+
+
 CREATE OR REPLACE FUNCTION historize_check_foreign_server(
   foreign_server varchar
 )
@@ -144,3 +135,6 @@ BEGIN
     END IF;
 END;
 $$;
+
+--
+--
