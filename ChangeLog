@@ -1,5 +1,9 @@
 2024-12-11  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
 
+	* 1.0.2 check if the foreign_server in all function that use it
+
+	* 1.0.2 add new function historize_check_foreign_server
+
 	* 1.0.1 Fix bug on function historize_cron_list
 
 2024-12-10  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
