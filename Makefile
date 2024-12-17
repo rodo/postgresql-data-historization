@@ -14,7 +14,7 @@ DISTVERSION  = $(shell grep -m 1 '[[:space:]]\{3\}"version":' META.json | \
 
 DATA = $(wildcard data_historization--*.sql)
 
-PGTLEOUT = pgtle.$(EXTENSION)-$(EXTVERSION).sql
+PGTLEOUT = dist/pgtle.$(EXTENSION)--$(EXTVERSION).sql
 
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
@@ -24,11 +24,11 @@ SCHEMA = @extschema@
 
 include $(PGXS)
 
-all: $(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT) data_historization.control
+all: dist/$(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT) data_historization.control
 
-$(EXTENSION)--$(EXTVERSION).sql: $(FILES)
+dist/$(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $(FILES) > $@
-	cat $@ > data_historization.sql
+	cat $@ > dist/data_historization.sql
 
 clean:
 	rm -f *.zip data_historization.control
@@ -36,7 +36,7 @@ clean:
 test:
 	pg_prove $(TESTFILES)
 
-$(PGTLEOUT): $(EXTENSION)--$(EXTVERSION).sql src/pgtle_footer.in src/pgtle_header.in
+$(PGTLEOUT): dist/$(EXTENSION)--$(EXTVERSION).sql src/pgtle_footer.in src/pgtle_header.in
 	sed -e 's/_EXTVERSION_/$(EXTVERSION)/' src/pgtle_header.in > $(PGTLEOUT)
 	cat $(EXTENSION)--$(EXTVERSION).sql >> $(PGTLEOUT)
 	cat src/pgtle_footer.in >> $(PGTLEOUT)

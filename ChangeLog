@@ -1,3 +1,7 @@
+2024-12-17  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
+
+	* 1.1.0 add functions to manage default comment set on columns
+
 2024-12-11  Rodolphe Quiédeville  <rodolphe@quiedeville.org>
 
 	* 1.0.2 check if the foreign_server in all function that use it

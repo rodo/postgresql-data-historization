@@ -47,6 +47,13 @@ BEGIN
     EXECUTE format('
        ALTER TABLE %s ADD COLUMN histo_sys_period tstzrange NOT NULL DEFAULT tstzrange(current_timestamp, null)', table_source);
 
+    IF historize_get_column_default_comment() IS NOT NULL THEN
+       EXECUTE format('
+         COMMENT ON COLUMN %s.histo_version IS ''%s'' ', table_source, historize_get_column_default_comment() );
+       EXECUTE format('
+         COMMENT ON COLUMN %s.histo_sys_period IS ''%s'' ', table_source, historize_get_column_default_comment() );
+    END IF;
+
     -- Create 7 first partition from today
     --
     EXECUTE format('
