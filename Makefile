@@ -12,7 +12,7 @@ EXTVERSION   = $(shell grep -m 1 '[[:space:]]\{3\}"version":' META.json | \
 DISTVERSION  = $(shell grep -m 1 '[[:space:]]\{3\}"version":' META.json | \
 	       sed -e 's/[[:space:]]*"version":[[:space:]]*"\([^"]*\)",\{0,1\}/\1/')
 
-DATA = $(wildcard data_historization--*.sql)
+DATA = $(wildcard dist/data_historization--*.sql)
 
 PGTLEOUT = dist/pgtle.$(EXTENSION)--$(EXTVERSION).sql
 
