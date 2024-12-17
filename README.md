@@ -8,6 +8,7 @@ Data historization process needs 2 steps, a first one to initialize, this
 step will create the necessary objects. The second step launch the
 historization by setting up the triggers.
 
+
 ### Initialize the historization
 
 The following function will set up all necessary object to historize
@@ -33,9 +34,22 @@ The function will remove trigger dans function and stop to store changes in log 
 SELECT historize_table_stop('public','alpha');
 ```
 
+### Reset the historization
 
-The data are stored in a partitioned table to ease the removal of old
-data, be sure to create enough partition.
+The function will remove the cron entries and columns created on source tablr
+
+```sql
+SELECT historize_table_reset('public','alpha');
+```
+
+### Clean the historization
+
+The function will remove the table log, after this step there is no trace of the historization
+
+```sql
+SELECT historize_table_clean('public','alpha');
+```
+
 
 ## Creating the partitions
 
@@ -49,7 +63,10 @@ SELECT historize_create_partition('public', 'alpha_log', 0);
 SELECT historize_drop_partition('public', 'alpha_log', 0);
 ```
 
-## Create partition with pg_cron
+## Create partition manually with pg_cron
+
+The data are stored in a partitioned table to ease the removal of old
+data, be sure to create enough partition.
 
 If you want to automatically create partition with [pg_cron](https://github.com/citusdata/pg_cron) you can add
 the following commands
