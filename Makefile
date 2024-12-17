@@ -31,14 +31,14 @@ dist/$(EXTENSION)--$(EXTVERSION).sql: $(FILES)
 	cat $@ > dist/data_historization.sql
 
 clean:
-	rm -f *.zip data_historization.control
+	rm -f *.zip data_historization.control dist/$(EXTENSION)--$(EXTVERSION).sql $(PGTLEOUT)
 
 test:
 	pg_prove $(TESTFILES)
 
 $(PGTLEOUT): dist/$(EXTENSION)--$(EXTVERSION).sql src/pgtle_footer.in src/pgtle_header.in
 	sed -e 's/_EXTVERSION_/$(EXTVERSION)/' src/pgtle_header.in > $(PGTLEOUT)
-	cat $(EXTENSION)--$(EXTVERSION).sql >> $(PGTLEOUT)
+	cat dist/$(EXTENSION)--$(EXTVERSION).sql >> $(PGTLEOUT)
 	cat src/pgtle_footer.in >> $(PGTLEOUT)
 
 dist:
