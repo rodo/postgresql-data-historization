@@ -1,3 +1,9 @@
+SELECT pgtle.install_extension
+(
+ 'data_historization',
+ '1.1.0',
+ 'Keep a copy of each tuples in a dedicated table',
+$_pg_tle_$
 -- Function that will create a partition
 
 CREATE OR REPLACE FUNCTION historize_check_partition(
@@ -653,3 +659,5 @@ BEGIN
     PERFORM historize_table_stop('public'::name, table_source);
 END;
 $$;
+$_pg_tle_$
+);
